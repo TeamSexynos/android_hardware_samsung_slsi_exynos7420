@@ -170,7 +170,7 @@ static tciMessage_ptr TEE_Open(mcSessionHandle_t *SessionHandle)
 	mcRet = mcOpenDevice(gDeviceId);
 	if (mcRet != MC_DRV_OK) {
 		LOG_E("Error opening device: %d", mcRet);
-		return false;
+		return tci;
 	}
 
 	LOG_I("Allocating buffer for TCI");
@@ -179,7 +179,7 @@ static tciMessage_ptr TEE_Open(mcSessionHandle_t *SessionHandle)
 	if (tci == NULL) {
 		LOG_I("Allocation of TCI failed");
 		//LOG_ERRNO("Allocation of TCI failed");
-		return false;
+		return NULL;
 	}
 	memset(tci, 0x00, sizeof(tciMessage_t));
 	nTrustedAppLength = getFileContent(secureSecDispTrustedApp,
@@ -189,7 +189,7 @@ static tciMessage_ptr TEE_Open(mcSessionHandle_t *SessionHandle)
 		LOG_E("Trusted Application not found");
 		free(tci);
 		tci = NULL;
-		return false;
+		return tci;
 	}
 
 	LOG_I("Opening the Trusted Application session");
@@ -206,7 +206,7 @@ static tciMessage_ptr TEE_Open(mcSessionHandle_t *SessionHandle)
 		LOG_E("Open session failed: %d", mcRet);
 		free(tci);
 		tci= NULL;
-		return false;
+		return tci;
 	}
 
 	LOG_I("mcOpenTrustlet() succeeded");
@@ -221,7 +221,7 @@ static tciMessage_ptr TEE_Open(mcSessionHandle_t *SessionHandle)
  *
  * @param  sessionHandle  [in] Session handle
  */
-static void TEE_Close(mcSessionHandle_t *pSessionHandle)
+__unused static void TEE_Close(mcSessionHandle_t *pSessionHandle)
 {
 	mcResult_t    mcRet;
 
@@ -330,14 +330,14 @@ teeResult_t TEE_Enroll(uint32_t uid,
 		/* Update TCI buffer */
 		pTci->command.header.commandId = CMD_ID_TEE_ENROLL;
 		pTci->gk_enroll.uid = uid;
-		pTci->gk_enroll.current_password_handle_va = (uint32_t)mapinfo_va_mapping.sVirtualAddr;
+		pTci->gk_enroll.current_password_handle_va = (size_t)mapinfo_va_mapping.sVirtualAddr;
 		pTci->gk_enroll.current_password_handle_length = current_password_handle_length;
-		pTci->gk_enroll.current_password_va = (uint32_t)mapinfo_va_mapping.sVirtualAddr + vagap_current_password;
+		pTci->gk_enroll.current_password_va = (size_t)mapinfo_va_mapping.sVirtualAddr + vagap_current_password;
 		pTci->gk_enroll.current_password_length = current_password_length;
-		pTci->gk_enroll.desired_password_va = (uint32_t)mapinfo_va_mapping.sVirtualAddr + vagap_desired_password;
+		pTci->gk_enroll.desired_password_va = (size_t)mapinfo_va_mapping.sVirtualAddr + vagap_desired_password;
 		pTci->gk_enroll.desired_password_length = desired_password_length;
-		pTci->gk_enroll.enrolled_password_handle_va = (uint32_t)mapinfo_va_mapping.sVirtualAddr + vagap_enrolled_password_handle;
-		pTci->gk_enroll.secure_object_va = (uint32_t)mapinfo_va_mapping.sVirtualAddr + vagap_secure_object;
+		pTci->gk_enroll.enrolled_password_handle_va = (size_t)mapinfo_va_mapping.sVirtualAddr + vagap_enrolled_password_handle;
+		pTci->gk_enroll.secure_object_va = (size_t)mapinfo_va_mapping.sVirtualAddr + vagap_secure_object;
 
 		/* Notify the trusted application */
 		mcRet = mcNotify(&sessionHandle);
@@ -493,19 +493,19 @@ teeResult_t TEE_Verify(uint32_t uid,
 		pTci->gk_verify.uid = uid;
 		pTci->gk_verify.challenge = challenge;
 		pTci->gk_verify.enrolled_password_handle_va =
-			(uint32_t)mapinfo_va_mapping.sVirtualAddr;
+			(size_t)mapinfo_va_mapping.sVirtualAddr;
 		pTci->gk_verify.enrolled_password_handle_length =
 			enrolled_password_handle_length;
 		pTci->gk_verify.provided_password_va =
-			(uint32_t)mapinfo_va_mapping.sVirtualAddr + vagap_provided_password;
+			(size_t)mapinfo_va_mapping.sVirtualAddr + vagap_provided_password;
 		pTci->gk_verify.provided_password_length =
 			provided_password_length;
 		pTci->gk_verify.auth_token_va =
-			(uint32_t)mapinfo_va_mapping.sVirtualAddr + vagap_auth_token;
+			(size_t)mapinfo_va_mapping.sVirtualAddr + vagap_auth_token;
 		pTci->gk_verify.auth_token_length = *auth_token_length;
 		pTci->gk_verify.request_reenroll = *request_reenroll;
 		pTci->gk_verify.secure_object_va =
-			(uint32_t)mapinfo_va_mapping.sVirtualAddr + vagap_secure_object;
+			(size_t)mapinfo_va_mapping.sVirtualAddr + vagap_secure_object;
 
 		/* Get Time for sending TA */
 		pTci->gk_verify.nw_timestamp = clock_gettime_millisec();

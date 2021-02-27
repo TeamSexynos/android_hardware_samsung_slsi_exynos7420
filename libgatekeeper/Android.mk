@@ -29,7 +29,8 @@ LOCAL_SRC_FILES := exynos_gatekeeper.cpp \
 LOCAL_C_INCLUDES := \
 	$(CURRENT_PATH)/include \
 	$(MOBICORE_PATH)/daemon/ClientLib/public \
-	$(MOBICORE_PATH)/common/MobiCore/inc/
+	$(MOBICORE_PATH)/common/MobiCore/inc/ \
+	system/keymaster/include
 
 LOCAL_CFLAGS := -fvisibility=hidden
 LOCAL_CFLAGS += -Wall -Werror

@@ -17,18 +17,21 @@
 #include <errno.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #include <hardware/hardware.h>
 #include <hardware/gatekeeper.h>
 #include <hardware/hw_auth_token.h>
 
-#include <UniquePtr.h>
+#include <keymaster/UniquePtr.h>
 
 #include "tlcTeeGatekeeper_if.h"
 #include "password_handle.h"
 
 #include <utils/Log.h>
 #include <cutils/log.h>
+
+using keymaster::UniquePtr;
 
 typedef UniquePtr<gatekeeper_device_t> Unique_gatekeeper_device_t;
 
@@ -276,7 +279,7 @@ static int exynos_gk_open(const hw_module_t *module, const char *name,
 }
 
 static struct hw_module_methods_t gatekeeper_module_methods = {
-    open: exynos_gk_open,
+    .open = exynos_gk_open,
 };
 
 
